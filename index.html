@@ -1,0 +1,2126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>EVERBLOOM — A Flower Just for You</title>
+<meta name="description" content="A digital flower garden, grown with love.">
+<style>
+  /* ============================================================
+     EVERBLOOM — styles
+     ============================================================ */
+  :root{
+    --ivory:#FFF5E9;
+    --blush:#FFC4D8;
+    --rose:#FF8FB8;
+    --gold:#FFD99A;
+    --violet:#C5A7FF;
+    --deep-rose:#D94D80;
+    --serif: "Didot", "Bodoni MT", "Playfair Display", "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0; padding:0;
+    width:100%; height:100%;
+    background:#080710;
+    overflow:hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body{
+    font-family: var(--sans);
+    color: var(--ivory);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ---------- Stage ---------- */
+  #stage{
+    position:fixed; inset:0;
+    overflow:hidden;
+    background:
+      radial-gradient(ellipse 90% 65% at 50% 46%, rgba(96,38,78,.40), rgba(0,0,0,0) 68%),
+      radial-gradient(ellipse 70% 55% at 16% 84%, rgba(56,26,74,.42), rgba(0,0,0,0) 70%),
+      radial-gradient(ellipse 65% 55% at 88% 22%, rgba(38,30,84,.42), rgba(0,0,0,0) 70%),
+      linear-gradient(180deg, #080710 0%, #130C1D 34%, #1B0F24 62%, #120A18 84%, #07060E 100%);
+  }
+
+  .fx{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+    pointer-events:none;
+  }
+  #fxBack{ z-index:1; }
+  #fxFront{ z-index:3; }
+
+  #garden{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    display:block;
+    z-index:2;
+    pointer-events:none;
+    overflow:visible;
+  }
+
+  /* ---------- Overlay ---------- */
+  #overlay{
+    position:absolute; inset:0;
+    z-index:4;
+    pointer-events:none;
+  }
+
+  /* ---------- Title ---------- */
+  #titleWrap{
+    position:absolute;
+    left:50%; top: clamp(28px, 8vh, 90px);
+    transform: translateX(-50%);
+    width: min(92vw, 1000px);
+    text-align:center;
+    pointer-events:none;
+  }
+
+  #title{
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(26px, 4.6vw, 68px);
+    letter-spacing: .42em;
+    text-indent: .42em;
+    margin: 0;
+    color: var(--ivory);
+    text-shadow:
+      0 0 18px rgba(255,217,154,.45),
+      0 0 54px rgba(255,155,201,.28),
+      0 0 120px rgba(197,167,255,.18);
+    opacity:0;
+    transform: translateY(16px) scale(.985);
+    transition: opacity 2.4s cubic-bezier(.22,.9,.3,1), transform 2.4s cubic-bezier(.22,.9,.3,1);
+    will-change: opacity, transform;
+  }
+  #title.in{ opacity:1; transform:none; }
+
+  #subtitle{
+    font-family: var(--sans);
+    font-size: clamp(9px, 1.05vw, 13px);
+    letter-spacing: .52em;
+    text-indent: .52em;
+    text-transform: uppercase;
+    color: rgba(255,196,216,.82);
+    margin: clamp(10px, 1.8vh, 20px) 0 0;
+    opacity:0;
+    transform: translateY(10px);
+    transition: opacity 2.2s ease, transform 2.2s ease;
+    will-change: opacity, transform;
+  }
+  #subtitle.in{ opacity:1; transform:none; }
+
+  /* ---------- Final message ---------- */
+  #messageWrap{
+    position:absolute;
+    left:50%;
+    bottom: clamp(38px, 9vh, 96px);
+    transform: translateX(-50%) translateY(14px);
+    width: min(86vw, 660px);
+    text-align:center;
+    opacity:0;
+    transition: opacity 2.6s ease, transform 2.6s cubic-bezier(.22,.9,.3,1);
+    will-change: opacity, transform;
+  }
+  #messageWrap.in{ opacity:1; transform: translateX(-50%) translateY(0); }
+
+  #messageName{
+    font-family: var(--sans);
+    font-size: clamp(9px, 1vw, 12px);
+    letter-spacing: .46em;
+    text-indent: .46em;
+    text-transform: uppercase;
+    color: rgba(255,217,154,.85);
+    margin: 0 0 12px;
+    display:none;
+  }
+  #messageName.show{ display:block; }
+
+  #heart{
+    width: clamp(16px, 2.1vw, 22px);
+    height:auto;
+    display:block;
+    margin: 0 auto 16px;
+    filter: drop-shadow(0 0 10px rgba(255,143,184,.75)) drop-shadow(0 0 26px rgba(255,143,184,.35));
+    animation: heartPulse 4.6s ease-in-out infinite;
+    opacity:.92;
+  }
+  @keyframes heartPulse{
+    0%,100%{ transform: scale(1); opacity:.85; }
+    50%    { transform: scale(1.09); opacity:1; }
+  }
+
+  #message{
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(14px, 1.85vw, 23px);
+    line-height: 1.72;
+    letter-spacing: .015em;
+    margin: 0;
+    color: rgba(255,245,233,.94);
+    text-shadow: 0 0 26px rgba(255,155,201,.32), 0 2px 20px rgba(0,0,0,.6);
+  }
+
+  /* ---------- Floating flower message ---------- */
+  #flowerMsg{
+    position:absolute;
+    left:0; top:0;
+    padding: 9px 20px;
+    border-radius: 999px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(12px, 1.35vw, 16px);
+    letter-spacing: .02em;
+    color: rgba(255,245,233,.96);
+    background: linear-gradient(180deg, rgba(38,17,42,.55), rgba(18,10,26,.55));
+    border: 1px solid rgba(255,196,216,.22);
+    box-shadow: 0 0 34px rgba(255,155,201,.28), 0 8px 30px rgba(0,0,0,.5);
+    backdrop-filter: blur(9px) saturate(1.15);
+    -webkit-backdrop-filter: blur(9px) saturate(1.15);
+    white-space: nowrap;
+    opacity:0;
+    transform: translate(-50%,-50%) translateY(8px) scale(.94);
+    transition: opacity .6s ease, transform .7s cubic-bezier(.22,.9,.3,1);
+    pointer-events:none;
+    max-width: 88vw;
+    overflow:hidden;
+    text-overflow: ellipsis;
+  }
+  #flowerMsg.show{
+    opacity:1;
+    transform: translate(-50%,-50%) translateY(0) scale(1);
+  }
+
+  /* ---------- Controls ---------- */
+  #controls{
+    position:absolute;
+    left: clamp(14px, 2.4vw, 30px);
+    bottom: clamp(14px, 2.6vh, 28px);
+    display:flex;
+    gap:9px;
+    pointer-events:auto;
+    z-index:6;
+  }
+
+  .ctrl{
+    width: 38px; height:38px;
+    border-radius:50%;
+    border: 1px solid rgba(255,196,216,.20);
+    background: linear-gradient(180deg, rgba(44,22,48,.50), rgba(16,9,24,.50));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: rgba(255,245,233,.78);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    padding:0;
+    transition: transform .28s cubic-bezier(.22,.9,.3,1),
+                border-color .28s ease,
+                color .28s ease,
+                box-shadow .28s ease,
+                background .28s ease;
+    -webkit-user-select:none; user-select:none;
+  }
+  .ctrl svg{ width:16px; height:16px; display:block; }
+  .ctrl:hover{
+    color: var(--ivory);
+    border-color: rgba(255,217,154,.55);
+    box-shadow: 0 0 22px rgba(255,155,201,.32), 0 0 46px rgba(255,217,154,.14);
+    transform: translateY(-2px);
+  }
+  .ctrl:active{ transform: translateY(0) scale(.93); }
+  .ctrl:focus-visible{
+    outline: 2px solid rgba(255,217,154,.9);
+    outline-offset: 3px;
+  }
+  .ctrl.on{
+    color: var(--gold);
+    border-color: rgba(255,217,154,.7);
+    box-shadow: 0 0 24px rgba(255,217,154,.36);
+  }
+
+  /* ---------- Vignette for the final reveal ---------- */
+  #vignette{
+    position:absolute; inset:0;
+    z-index:3;
+    pointer-events:none;
+    opacity:0;
+    transition: opacity 3.6s ease;
+    background:
+      radial-gradient(ellipse 62% 58% at 50% 52%, rgba(0,0,0,0) 38%, rgba(4,3,10,.62) 100%);
+  }
+  #vignette.in{ opacity:1; }
+
+  /* ---------- Reduced motion ---------- */
+  @media (prefers-reduced-motion: reduce){
+    #heart{ animation: none; }
+    #title, #subtitle, #messageWrap{ transition-duration: 1s; }
+  }
+
+  @media (max-width: 620px){
+    #titleWrap{ top: clamp(20px, 6vh, 54px); }
+    #messageWrap{ bottom: clamp(30px, 7vh, 70px); }
+    .ctrl{ width:34px; height:34px; }
+    .ctrl svg{ width:14px; height:14px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <canvas id="fxBack" class="fx" aria-hidden="true"></canvas>
+  <svg id="garden" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+  <canvas id="fxFront" class="fx" aria-hidden="true"></canvas>
+
+  <div id="overlay">
+    <div id="titleWrap">
+      <h1 id="title">EVERBLOOM</h1>
+      <p id="subtitle">A Flower Just for You</p>
+    </div>
+
+    <div id="messageWrap">
+      <p id="messageName"></p>
+      <svg id="heart" viewBox="0 0 32 29" aria-hidden="true">
+        <defs>
+          <linearGradient id="heartGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#FFC4D8"/>
+            <stop offset="55%" stop-color="#FF8FB8"/>
+            <stop offset="100%" stop-color="#D94D80"/>
+          </linearGradient>
+        </defs>
+        <path fill="url(#heartGrad)"
+          d="M16 27.6C16 27.6 2.2 19.2 2.2 10.4C2.2 5.8 5.9 2.1 10.4 2.1C13.1 2.1 15.3 3.5 16 5.3C16.7 3.5 18.9 2.1 21.6 2.1C26.1 2.1 29.8 5.8 29.8 10.4C29.8 19.2 16 27.6 16 27.6Z"/>
+      </svg>
+      <p id="message"></p>
+    </div>
+
+    <div id="flowerMsg" role="status" aria-live="polite"></div>
+  </div>
+
+  <div id="vignette" aria-hidden="true"></div>
+
+  <div id="controls">
+    <button id="btnSound" class="ctrl" type="button" aria-label="Toggle ambient sound" aria-pressed="false" title="Sound">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 9.5h3.2L12 5.4v13.2L7.2 14.5H4z"/>
+        <path class="wave1" d="M15.6 9.2a4 4 0 0 1 0 5.6"/>
+        <path class="wave2" d="M18.2 6.6a7.6 7.6 0 0 1 0 10.8"/>
+      </svg>
+    </button>
+
+    <button id="btnPause" class="ctrl" type="button" aria-label="Pause animation" aria-pressed="false" title="Pause">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+        <rect class="ico-pause-a" x="7" y="5.5" width="3.4" height="13" rx="1.2"/>
+        <rect class="ico-pause-b" x="13.6" y="5.5" width="3.4" height="13" rx="1.2"/>
+        <path class="ico-play" d="M8.6 5.6v12.8L19 12z" style="display:none"/>
+      </svg>
+    </button>
+
+    <button id="btnReplay" class="ctrl" type="button" aria-label="Replay the blooming" title="Replay">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 12a8 8 0 1 1-2.4-5.7"/>
+        <path d="M20 4.4V9.6h-5.2"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   EVERBLOOM
+   A single-file, procedurally generated digital flower garden.
+   ================================================================ */
+(function () {
+  'use strict';
+
+  /* ==============================================================
+     1. CONFIGURATION  —  edit these values to personalise the gift
+     ============================================================== */
+  const CONFIG = {
+    /* Set this to your girlfriend's name, or leave empty for a neutral look. */
+    recipientName: '',
+
+    /* Headline shown above the bouquet. */
+    title: 'EVERBLOOM',
+
+    /* Small line beneath the headline. */
+    subtitle: 'A Flower Just for You',
+
+    /* The main personal message shown at the end of the sequence. */
+    message: 'Even from far away, I wanted to create something beautiful that could reach you.',
+
+    /* Random messages shown when a flower is clicked / tapped. */
+    flowerMessages: [
+      'Made with love.',
+      'A little flower, just for you.',
+      'Distance cannot stop something beautiful from growing.',
+      'Every petal carries a little affection.',
+      'You are my favourite season.',
+      'This one bloomed while thinking of you.',
+      'A garden is just a promise that keeps growing.',
+      'You are the reason it blooms.'
+    ],
+
+    /* Global pacing multiplier. 1 = normal, 1.4 = faster, 0.7 = slower. */
+    speed: 1,
+
+    /* Particle density multiplier. 1 = normal, 0.5 = half, 1.6 = lush. */
+    density: 1
+  };
+
+  /* ==============================================================
+     2. SMALL UTILITIES
+     ============================================================== */
+  const NS = 'http://www.w3.org/2000/svg';
+  const TAU = Math.PI * 2;
+
+  const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+  const lerp  = (a, b, t) => a + (b - a) * t;
+  const rand  = (a, b) => a + Math.random() * (b - a);
+  const randInt = (a, b) => Math.floor(rand(a, b + 1));
+
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+  function easeInCubic(t)  { return t * t * t; }
+  function easeInOutSine(t){ return -(Math.cos(Math.PI * t) - 1) / 2; }
+  /* Gentle overshoot easing — used for petal unfolding and leaf growth. */
+  function easeOutBack(t, s) {
+    s = (s === undefined) ? 1.0 : s;
+    const c = s + 1;
+    return 1 + c * Math.pow(t - 1, 3) + s * Math.pow(t - 1, 2);
+  }
+
+  function el(tag, attrs) {
+    const n = document.createElementNS(NS, tag);
+    if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
+    return n;
+  }
+
+  /* Cubic Bézier point evaluation (used for stems + leaf placement). */
+  function bezPoint(p, t) {
+    const mt = 1 - t;
+    const a = mt * mt * mt, b = 3 * mt * mt * t, c = 3 * mt * t * t, d = t * t * t;
+    return {
+      x: a * p[0].x + b * p[1].x + c * p[2].x + d * p[3].x,
+      y: a * p[0].y + b * p[1].y + c * p[2].y + d * p[3].y
+    };
+  }
+
+  /* ==============================================================
+     3. TIMELINE (in milliseconds of scene time)
+     ============================================================== */
+  const T = {
+    seedIn:     520,   /* the first light appears                        */
+    seedFall:  1350,   /* the light sinks toward the soil                */
+    heroStem:  1650,   /* the first stem begins to grow                  */
+    heroBloom: 3350,   /* the hero rose starts opening                   */
+    titleIn:   4300,
+    subtitleIn: 5250,
+    garden:    5100,   /* the rest of the garden starts blooming         */
+    messageIn: 12000,
+    reveal:    13800
+  };
+
+  /* ==============================================================
+     4. FLOWER SPECIFICATIONS
+     Each layer is a ring of petals. Angles are distributed evenly
+     around the flower centre; when the flower is closed every petal
+     rotates toward 0° so the bloom reads as a bud.
+     ============================================================== */
+  const SPECS = {
+
+    /* ---------------- Rose ---------------- */
+    rose: {
+      hitR: 64, duration: 1550, swayAmp: 1.05, coreGlow: 1.0,
+      layers: [
+        { count: 9, len: 58, wid: 36, shape: 'round', grad: 'rose0', delay: 0.00, closed: 0.30, off: 7.0, aj: 9,  rotOffset: 0  },
+        { count: 8, len: 50, wid: 31, shape: 'round', grad: 'rose1', delay: 0.08, closed: 0.30, off: 5.0, aj: 11, rotOffset: 22 },
+        { count: 7, len: 40, wid: 25, shape: 'round', grad: 'rose2', delay: 0.18, closed: 0.32, off: 3.5, aj: 13, rotOffset: 12 },
+        { count: 6, len: 30, wid: 19, shape: 'round', grad: 'rose2', delay: 0.30, closed: 0.34, off: 2.5, aj: 15, rotOffset: 30 },
+        { count: 5, len: 21, wid: 13, shape: 'round', grad: 'rose3', delay: 0.42, closed: 0.36, off: 1.5, aj: 17, rotOffset: 8  },
+        { count: 4, len: 13, wid: 9,  shape: 'round', grad: 'rose3', delay: 0.54, closed: 0.40, off: 0.8, aj: 20, rotOffset: 40 }
+      ],
+      core: { r: 6.5, glowR: 78 }
+    },
+
+    /* ---------------- Peony ---------------- */
+    peony: {
+      hitR: 68, duration: 1650, swayAmp: 1.15, coreGlow: 0.85,
+      layers: [
+        { count: 10, len: 56, wid: 38, shape: 'round', grad: 'peony0', delay: 0.00, closed: 0.28, off: 8.0, aj: 9,  rotOffset: 0  },
+        { count: 9,  len: 50, wid: 33, shape: 'round', grad: 'peony1', delay: 0.07, closed: 0.28, off: 6.0, aj: 11, rotOffset: 18 },
+        { count: 8,  len: 42, wid: 28, shape: 'round', grad: 'peony1', delay: 0.16, closed: 0.30, off: 4.5, aj: 13, rotOffset: 36 },
+        { count: 7,  len: 33, wid: 22, shape: 'round', grad: 'peony2', delay: 0.27, closed: 0.32, off: 3.0, aj: 15, rotOffset: 8  },
+        { count: 6,  len: 24, wid: 16, shape: 'round', grad: 'peony2', delay: 0.39, closed: 0.35, off: 2.0, aj: 17, rotOffset: 30 },
+        { count: 5,  len: 15, wid: 10, shape: 'round', grad: 'peony3', delay: 0.52, closed: 0.38, off: 1.0, aj: 20, rotOffset: 14 }
+      ],
+      core: { r: 5.5, glowR: 82 }
+    },
+
+    /* ---------------- Tulip ---------------- */
+    tulip: {
+      hitR: 46, duration: 1300, swayAmp: 2.1, coreGlow: 0.35,
+      layers: [
+        { count: 3, len: 64, wid: 34, shape: 'cup', grad: 'tulip0', delay: 0.00, closed: 0.42, off: 2.0, aj: 3, jl: 0.06, jw: 0.06, rotOffset: 0  },
+        { count: 3, len: 58, wid: 30, shape: 'cup', grad: 'tulip1', delay: 0.14, closed: 0.40, off: 1.0, aj: 3, jl: 0.06, jw: 0.06, rotOffset: 30 },
+        { count: 3, len: 48, wid: 24, shape: 'cup', grad: 'tulip1', delay: 0.30, closed: 0.38, off: 0.0, aj: 3, jl: 0.06, jw: 0.06, rotOffset: 60 }
+      ],
+      core: null
+    },
+
+    /* ---------------- Lily ---------------- */
+    lily: {
+      hitR: 50, duration: 1400, swayAmp: 1.5, coreGlow: 0.7,
+      layers: [
+        { count: 6, len: 70, wid: 20, shape: 'point', grad: 'lily0', delay: 0.00, closed: 0.20, off: 2.0, aj: 2, jl: 0.08, jw: 0.08, rotOffset: 0  },
+        { count: 6, len: 58, wid: 16, shape: 'point', grad: 'lily1', delay: 0.18, closed: 0.24, off: 0.0, aj: 2, jl: 0.08, jw: 0.08, rotOffset: 30 }
+      ],
+      stamens: 6,
+      core: { r: 5, glowR: 62 }
+    },
+
+    /* ---------------- Wildflower ---------------- */
+    wild: {
+      hitR: 28, duration: 1050, swayAmp: 2.6, coreGlow: 0.6,
+      layers: [
+        { count: 6, len: 26, wid: 13, shape: 'round', grad: 'wild0', delay: 0.00, closed: 0.30, off: 2.0, aj: 8 },
+        { count: 5, len: 17, wid: 9,  shape: 'round', grad: 'wild1', delay: 0.18, closed: 0.35, off: 1.0, aj: 12, rotOffset: 30 }
+      ],
+      core: { r: 4, glowR: 30 }
+    }
+  };
+
+  /* ==============================================================
+     5. BOUQUET LAYOUT
+     Coordinates live in a 1200×800 "scene space". The layout engine
+     compresses them horizontally on narrow screens.
+     ============================================================== */
+  const FLOWER_DEFS = [
+    { type: 'rose',  x: 600, y: 298, s: 1.45, hero: true },   /* hero rose        */
+    { type: 'peony', x: 446, y: 392, s: 1.10 },                /* left peony       */
+    { type: 'peony', x: 758, y: 380, s: 1.06 },                /* right peony      */
+    { type: 'tulip', x: 492, y: 196, s: 1.00 },                /* left tulip       */
+    { type: 'tulip', x: 712, y: 206, s: 0.95 },                /* right tulip      */
+    { type: 'rose',  x: 390, y: 264, s: 0.92 },                /* left rose        */
+    { type: 'rose',  x: 820, y: 274, s: 0.88 },                /* right rose       */
+    { type: 'lily',  x: 600, y: 158, s: 0.96 },                /* crowning lily    */
+    { type: 'lily',  x: 312, y: 402, s: 0.76 },                /* outer lily       */
+    { type: 'wild',  x: 244, y: 322, s: 0.82 },                /* wild accents     */
+    { type: 'wild',  x: 954, y: 316, s: 0.82 },
+    { type: 'wild',  x: 350, y: 492, s: 0.72 },
+    { type: 'wild',  x: 866, y: 478, s: 0.72 }
+  ];
+
+  /* ==============================================================
+     6. PETAL GEOMETRY
+     Every petal is drawn from (0,0) pointing toward −y.
+     ============================================================== */
+  function petalPath(shape, L, W) {
+    const f = (n) => n.toFixed(2);
+    switch (shape) {
+      case 'point': /* lily — long, tapered, slightly recurved */
+        return 'M0,0C' + f(-W * 1.15) + ',' + f(-L * 0.18) + ' ' +
+               f(-W * 0.70) + ',' + f(-L * 0.72) + ' 0,' + f(-L) + 'C' +
+               f(W * 0.70) + ',' + f(-L * 0.72) + ' ' +
+               f(W * 1.15) + ',' + f(-L * 0.18) + ' 0,0Z';
+
+      case 'cup': /* tulip — broad with a softly rounded crown */
+        return 'M0,0C' + f(-W * 1.20) + ',' + f(-L * 0.14) + ' ' +
+               f(-W * 1.06) + ',' + f(-L * 0.84) + ' ' + f(-W * 0.26) + ',' + f(-L * 0.98) + 'C' +
+               f(-W * 0.06) + ',' + f(-L * 1.02) + ' ' +
+               f(W * 0.06) + ',' + f(-L * 1.02) + ' ' + f(W * 0.26) + ',' + f(-L * 0.98) + 'C' +
+               f(W * 1.06) + ',' + f(-L * 0.84) + ' ' +
+               f(W * 1.20) + ',' + f(-L * 0.14) + ' 0,0Z';
+
+      case 'leaf': /* botanical leaf */
+        return 'M0,0C' + f(-W * 1.00) + ',' + f(-L * 0.30) + ' ' +
+               f(-W * 0.72) + ',' + f(-L * 0.78) + ' 0,' + f(-L) + 'C' +
+               f(W * 0.72) + ',' + f(-L * 0.78) + ' ' +
+               f(W * 1.00) + ',' + f(-L * 0.30) + ' 0,0Z';
+
+      case 'round':
+      default: /* rose / peony — full, rounded petal */
+        return 'M0,0C' + f(-W * 1.25) + ',' + f(-L * 0.12) + ' ' +
+               f(-W * 1.04) + ',' + f(-L * 0.88) + ' 0,' + f(-L) + 'C' +
+               f(W * 1.04) + ',' + f(-L * 0.88) + ' ' +
+               f(W * 1.25) + ',' + f(-L * 0.12) + ' 0,0Z';
+    }
+  }
+
+  /* ==============================================================
+     7. SVG GRADIENT DEFINITIONS
+     ============================================================== */
+  function buildDefs(defs) {
+    function lin(id, stops) {
+      const g = el('linearGradient', { id: id, x1: 0, y1: 1, x2: 0, y2: 0 });
+      stops.forEach(function (s) {
+        g.appendChild(el('stop', { offset: s[0], 'stop-color': s[1] }));
+      });
+      defs.appendChild(g);
+    }
+    function rad(id, stops, cx, cy, r) {
+      const g = el('radialGradient', {
+        id: id,
+        cx: cx === undefined ? '50%' : cx,
+        cy: cy === undefined ? '50%' : cy,
+        r: r === undefined ? '50%' : r
+      });
+      stops.forEach(function (s) {
+        const st = el('stop', { offset: s[0], 'stop-color': s[1] });
+        if (s[2] !== undefined) st.setAttribute('stop-opacity', s[2]);
+        g.appendChild(st);
+      });
+      defs.appendChild(g);
+    }
+
+    /* --- petals --- */
+    lin('rose0',  [[0, '#6E1F42'], [0.45, '#B83A6C'], [1, '#FF8FB8']]);
+    lin('rose1',  [[0, '#8E2A57'], [0.50, '#E5669B'], [1, '#FFC4D8']]);
+    lin('rose2',  [[0, '#A83B6B'], [0.50, '#FF8FB8'], [1, '#FFE7BC']]);
+    lin('rose3',  [[0, '#C04579'], [0.50, '#FFB3D0'], [1, '#FFF5E9']]);
+
+    lin('peony0', [[0, '#8C2A5C'], [0.45, '#D4558A'], [1, '#FFB3D4']]);
+    lin('peony1', [[0, '#A8336A'], [0.45, '#EE7FAE'], [1, '#FFD8E6']]);
+    lin('peony2', [[0, '#C04579'], [0.50, '#FF9BC9'], [1, '#FFE7BC']]);
+    lin('peony3', [[0, '#D0558A'], [0.50, '#FFC4D8'], [1, '#FFF5E9']]);
+
+    lin('tulip0', [[0, '#5C2E8A'], [0.50, '#A46BC4'], [1, '#EBB8E0']]);
+    lin('tulip1', [[0, '#7A4BC4'], [0.50, '#C5A7FF'], [1, '#FFD8E6']]);
+
+    lin('lily0',  [[0, '#B9C79A'], [0.25, '#F0E4C6'], [0.70, '#FFF5E9'], [1, '#FFFFFF']]);
+    lin('lily1',  [[0, '#C9D8B0'], [0.30, '#E8DCBF'], [1, '#FFE7BC']]);
+
+    lin('wild0',  [[0, '#5B3E9E'], [0.50, '#916BDE'], [1, '#E0D0FF']]);
+    lin('wild1',  [[0, '#9A6FD6'], [0.50, '#C5A7FF'], [1, '#FFD8E6']]);
+
+    /* --- foliage --- */
+    lin('leaf0',  [[0, '#0F2A23'], [0.50, '#183B32'], [1, '#3E7358']]);
+    lin('leaf1',  [[0, '#1B4038'], [0.50, '#2E5C4A'], [1, '#88B59A']]);
+
+    /* --- stem (user-space vertical gradient) --- */
+    const sg = el('linearGradient', {
+      id: 'stemGrad', gradientUnits: 'userSpaceOnUse',
+      x1: 600, y1: 940, x2: 600, y2: 120
+    });
+    [['0', '#0C1F1A'], ['0.35', '#183B32'], ['0.72', '#285344'], ['1', '#3E7358']]
+      .forEach(function (s) { sg.appendChild(el('stop', { offset: s[0], 'stop-color': s[1] })); });
+    defs.appendChild(sg);
+
+    /* --- glows --- */
+    rad('glowGold', [
+      [0.00, '#FFF6DC', 0.95],
+      [0.28, '#FFD99A', 0.48],
+      [0.62, '#FF9BC9', 0.14],
+      [1.00, '#FF9BC9', 0.00]
+    ]);
+    rad('glowRose', [
+      [0.00, '#FFD8E6', 0.85],
+      [0.35, '#FF8FB8', 0.34],
+      [1.00, '#FF8FB8', 0.00]
+    ]);
+    rad('coreGrad', [
+      [0.00, '#FFFBF0'],
+      [0.45, '#FFE7BC'],
+      [1.00, '#E8A64B']
+    ]);
+    rad('seedGlow', [
+      [0.00, '#FFFFFF', 1.00],
+      [0.16, '#FFF3D0', 0.85],
+      [0.44, '#FFD99A', 0.36],
+      [0.72, '#FF9BC9', 0.10],
+      [1.00, '#FF9BC9', 0.00]
+    ]);
+  }
+
+  /* ==============================================================
+     8. AUDIO ENGINE (optional, off by default)
+     ============================================================== */
+  function AudioEngine() {
+    this.ctx = null;
+    this.master = null;
+    this.enabled = false;
+    this.padNodes = [];
+  }
+  AudioEngine.prototype.init = function () {
+    if (this.ctx) return true;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return false;
+    try { this.ctx = new AC(); } catch (e) { return false; }
+
+    this.master = this.ctx.createGain();
+    this.master.gain.value = 0;
+    this.master.connect(this.ctx.destination);
+    return true;
+  };
+  AudioEngine.prototype.startPad = function () {
+    if (!this.ctx || this.padNodes.length) return;
+    const t = this.ctx.currentTime;
+
+    const pad = this.ctx.createGain();
+    pad.gain.value = 0.055;
+
+    const lp = this.ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 640;
+    lp.Q.value = 0.6;
+
+    pad.connect(lp);
+    lp.connect(this.master);
+
+    /* A soft, slowly-breathing chord. */
+    const voices = [
+      { f: 110.00, type: 'sine' },
+      { f: 164.81, type: 'triangle' },
+      { f: 220.00, type: 'sine' },
+      { f: 329.63, type: 'sine' }
+    ];
+
+    voices.forEach(function (v, i) {
+      const o = this.ctx.createOscillator();
+      o.type = v.type;
+      o.frequency.value = v.f;
+      const g = this.ctx.createGain();
+      g.gain.value = 0.30 / (i * 0.75 + 1);
+      o.connect(g);
+      g.connect(pad);
+      o.start(t);
+
+      const lfo = this.ctx.createOscillator();
+      lfo.frequency.value = 0.037 + i * 0.013;
+      const lg = this.ctx.createGain();
+      lg.gain.value = 1.6;
+      lfo.connect(lg);
+      lg.connect(o.detune);
+      lfo.start(t);
+
+      this.padNodes.push(o, lfo);
+    }, this);
+  };
+  AudioEngine.prototype.setEnabled = function (on) {
+    if (on) {
+      if (!this.init()) return false;
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+      this.startPad();
+      this.enabled = true;
+      const t = this.ctx.currentTime;
+      this.master.gain.cancelScheduledValues(t);
+      this.master.gain.setValueAtTime(this.master.gain.value, t);
+      this.master.gain.linearRampToValueAtTime(0.5, t + 2.2);
+    } else {
+      this.enabled = false;
+      if (this.ctx) {
+        const t = this.ctx.currentTime;
+        this.master.gain.cancelScheduledValues(t);
+        this.master.gain.setValueAtTime(this.master.gain.value, t);
+        this.master.gain.linearRampToValueAtTime(0, t + 0.9);
+      }
+    }
+    return true;
+  };
+  AudioEngine.prototype.tone = function (freq, dur, vol, type) {
+    if (!this.enabled || !this.ctx) return;
+    const t = this.ctx.currentTime;
+    const o = this.ctx.createOscillator();
+    o.type = type || 'sine';
+    o.frequency.value = freq;
+
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+    o.connect(g);
+    g.connect(this.master);
+    o.start(t);
+    o.stop(t + dur + 0.06);
+  };
+  AudioEngine.prototype.bloom = function () {
+    this.tone(523.25, 2.6, 0.10, 'sine');
+    this.tone(784.00, 2.2, 0.05, 'sine');
+    this.tone(1046.5, 1.6, 0.025, 'sine');
+  };
+  AudioEngine.prototype.sparkle = function () {
+    const scale = [659.25, 783.99, 987.77, 1174.66, 1318.51];
+    const f = scale[randInt(0, scale.length - 1)];
+    this.tone(f, 1.5, 0.055, 'sine');
+    this.tone(f * 2, 0.9, 0.018, 'sine');
+  };
+
+  const audio = new AudioEngine();
+
+  /* ==============================================================
+     9. CANVAS FX LAYER
+     Handles stars, drifting motes, falling petals, sparkles and
+     atmospheric haze blobs. Two instances are used: one behind the
+     garden and one in front of it, for depth.
+     ============================================================== */
+  const PETAL_COLORS = [
+    { tip: '#FFE7F0', base: '#FF8FB8' },
+    { tip: '#FFF5E9', base: '#FFC4D8' },
+    { tip: '#FFD8E6', base: '#D94D80' },
+    { tip: '#FFF0F5', base: '#FFB3D0' },
+    { tip: '#FFE7BC', base: '#FF9BC9' }
+  ];
+
+  function makePetalSprite(col) {
+    const S = 72;
+    const c = document.createElement('canvas');
+    c.width = c.height = S;
+    const x = c.getContext('2d');
+    const r = S * 0.40;
+    x.translate(S / 2, S / 2);
+    const g = x.createLinearGradient(0, -r, 0, r);
+    g.addColorStop(0, col.tip);
+    g.addColorStop(1, col.base);
+    x.fillStyle = g;
+    x.beginPath();
+    x.moveTo(0, -r);
+    x.bezierCurveTo(r * 1.02, -r * 0.48, r * 0.82, r * 0.78, 0, r);
+    x.bezierCurveTo(-r * 0.82, r * 0.78, -r * 1.02, -r * 0.48, 0, -r);
+    x.closePath();
+    x.fill();
+    return c;
+  }
+
+  function makeGlowSprite(inner, outer, size) {
+    const S = size || 64;
+    const c = document.createElement('canvas');
+    c.width = c.height = S;
+    const x = c.getContext('2d');
+    const g = x.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2);
+    g.addColorStop(0, inner);
+    g.addColorStop(1, outer);
+    x.fillStyle = g;
+    x.fillRect(0, 0, S, S);
+    return c;
+  }
+
+  function makeBlobSprite(color, size) {
+    const S = size || 256;
+    const c = document.createElement('canvas');
+    c.width = c.height = S;
+    const x = c.getContext('2d');
+    const g = x.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2);
+    g.addColorStop(0, color);
+    g.addColorStop(0.55, color.replace(/[\d.]+\)$/, '0.18)'));
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    x.fillStyle = g;
+    x.fillRect(0, 0, S, S);
+    return c;
+  }
+
+  const SPRITES = {
+    petals: PETAL_COLORS.map(makePetalSprite),
+    mote: makeGlowSprite('rgba(255,240,215,0.95)', 'rgba(255,214,154,0)', 48),
+    spark: makeGlowSprite('rgba(255,255,255,1)', 'rgba(255,155,201,0)', 40),
+    blobs: [
+      makeBlobSprite('rgba(126,48,96,0.55)'),
+      makeBlobSprite('rgba(96,62,168,0.48)'),
+      makeBlobSprite('rgba(158,72,64,0.42)'),
+      makeBlobSprite('rgba(74,52,140,0.42)')
+    ]
+  };
+
+  function FxLayer(canvas, opts) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.opts = opts || {};
+    this.petals = [];
+    this.motes = [];
+    this.stars = [];
+    this.sparks = [];
+    this.blobs = [];
+    this.acc = 0;
+    this.dpr = 1;
+    this.w = 0;
+    this.h = 0;
+    this.resize();
+    this.init();
+  }
+
+  FxLayer.prototype.resize = function () {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.w = w;
+    this.h = h;
+    this.canvas.width = Math.max(1, Math.floor(w * this.dpr));
+    this.canvas.height = Math.max(1, Math.floor(h * this.dpr));
+    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+  };
+
+  FxLayer.prototype.init = function () {
+    const o = this.opts;
+    const d = CONFIG.density;
+
+    /* --- atmospheric haze --- */
+    if (o.blobs) {
+      for (let i = 0; i < o.blobs; i++) {
+        this.blobs.push({
+          x: rand(0.1, 0.9) * this.w,
+          y: rand(0.2, 0.9) * this.h,
+          r: rand(0.55, 1.05) * Math.max(this.w, this.h),
+          sp: rand(0.00004, 0.00011),
+          ph: rand(0, TAU),
+          amp: rand(0.05, 0.16),
+          sprite: SPRITES.blobs[i % SPRITES.blobs.length],
+          alpha: rand(0.16, 0.30)
+        });
+      }
+    }
+
+    /* --- stars --- */
+    if (o.stars) {
+      const n = Math.round(o.stars * d);
+      for (let i = 0; i < n; i++) {
+        this.stars.push({
+          x: Math.random() * this.w,
+          y: Math.random() * this.h * 0.85,
+          r: rand(0.35, 1.5),
+          a: rand(0.10, 0.72),
+          tw: rand(0.0004, 0.0022),
+          ph: rand(0, TAU),
+          drift: rand(-0.004, 0.004)
+        });
+      }
+    }
+
+    /* --- ambient motes --- */
+    if (o.motes) {
+      const n = Math.round(o.motes * d);
+      for (let i = 0; i < n; i++) this.motes.push(this.newMote(true));
+    }
+  };
+
+  FxLayer.prototype.newMote = function (anywhere) {
+    return {
+      x: Math.random() * this.w,
+      y: anywhere ? Math.random() * this.h : this.h + rand(10, 120),
+      r: rand(1.0, 3.6) * (this.opts.moteScale || 1),
+      vy: -rand(0.006, 0.030) * (this.opts.moteSpeed || 1),
+      sway: rand(0.004, 0.020),
+      ph: rand(0, TAU),
+      sp: rand(0.0004, 0.0013),
+      a: rand(0.10, 0.50),
+      tw: rand(0.0006, 0.0024)
+    };
+  };
+
+  FxLayer.prototype.spawnPetal = function (x, y, opts) {
+    if (this.petals.length >= (this.opts.maxPetals || 40)) return;
+    opts = opts || {};
+    const fromTop = (x === undefined);
+    const sprite = SPRITES.petals[randInt(0, SPRITES.petals.length - 1)];
+    this.petals.push({
+      x: fromTop ? Math.random() * this.w : x,
+      y: fromTop ? rand(-60, -10) : y,
+      vx: opts.vx !== undefined ? opts.vx : rand(-0.020, 0.020),
+      vy: opts.vy !== undefined ? opts.vy : rand(0.012, 0.055) * (this.opts.petalSpeed || 1),
+      rot: rand(0, TAU),
+      vrot: rand(-0.0016, 0.0016),
+      size: (opts.size || rand(7, 17)) * (this.opts.petalScale || 1),
+      alpha: opts.alpha !== undefined ? opts.alpha : rand(0.35, 0.92),
+      swayAmp: rand(0.10, 0.42),
+      swayFreq: rand(0.0006, 0.0018),
+      ph: rand(0, TAU),
+      life: 0,
+      maxLife: rand(14000, 26000),
+      sprite: sprite,
+      fade: 0
+    });
+  };
+
+  FxLayer.prototype.burst = function (x, y, count, power, colors) {
+    count = count || 18;
+    power = power || 1;
+    for (let i = 0; i < count; i++) {
+      if (this.sparks.length > 220) break;
+      const a = Math.random() * TAU;
+      const sp = rand(0.02, 0.16) * power;
+      this.sparks.push({
+        x: x, y: y,
+        vx: Math.cos(a) * sp,
+        vy: Math.sin(a) * sp - rand(0.005, 0.04),
+        r: rand(1.2, 4.2) * (power > 1 ? 1.25 : 1),
+        a: 1,
+        decay: rand(0.0007, 0.0019),
+        drag: rand(0.986, 0.996),
+        sprite: Math.random() < 0.55 ? SPRITES.spark : SPRITES.mote,
+        hue: colors || null
+      });
+    }
+  };
+
+  FxLayer.prototype.update = function (dt, t) {
+    const dts = dt / 16.6667;
+    if (dt <= 0) return;
+
+    /* haze drift */
+    for (let i = 0; i < this.blobs.length; i++) {
+      const b = this.blobs[i];
+      b.x += Math.cos(t * b.sp + b.ph) * b.amp * dts;
+      b.y += Math.sin(t * b.sp * 0.8 + b.ph * 1.3) * b.amp * 0.7 * dts;
+    }
+
+    /* stars */
+    for (let i = 0; i < this.stars.length; i++) {
+      const s = this.stars[i];
+      s.x += s.drift * dts;
+      if (s.x < -4) s.x = this.w + 4;
+      if (s.x > this.w + 4) s.x = -4;
+    }
+
+    /* motes */
+    for (let i = 0; i < this.motes.length; i++) {
+      const m = this.motes[i];
+      m.y += m.vy * dts * 16.6667 * 0.06;
+      m.x += Math.sin(t * m.sp + m.ph) * m.sway * dts;
+      if (m.y < -20) {
+        this.motes[i] = this.newMote(false);
+      }
+    }
+
+    /* petals */
+    if (this.opts.petalRate) {
+      this.acc += (dt / 1000) * this.opts.petalRate * CONFIG.density;
+      while (this.acc >= 1) {
+        this.acc -= 1;
+        this.spawnPetal();
+      }
+    }
+    for (let i = this.petals.length - 1; i >= 0; i--) {
+      const p = this.petals[i];
+      p.life += dt;
+      const ph = t * p.swayFreq + p.ph;
+      p.x += (p.vx + Math.sin(ph) * p.swayAmp) * dts;
+      p.y += p.vy * dts;
+      p.rot += p.vrot * dts;
+
+      const lifeT = p.life / p.maxLife;
+      p.fade = lifeT < 0.08 ? lifeT / 0.08 : (lifeT > 0.82 ? 1 - (lifeT - 0.82) / 0.18 : 1);
+
+      if (p.y > this.h + 60 || p.life > p.maxLife || p.fade <= 0) {
+        this.petals.splice(i, 1);
+      }
+    }
+
+    /* sparks */
+    for (let i = this.sparks.length - 1; i >= 0; i--) {
+      const s = this.sparks[i];
+      s.x += s.vx * dts;
+      s.y += s.vy * dts;
+      s.vx *= Math.pow(s.drag, dts);
+      s.vy *= Math.pow(s.drag, dts);
+      s.vy += 0.0006 * dts;
+      s.a -= s.decay * dt;
+      if (s.a <= 0) this.sparks.splice(i, 1);
+    }
+  };
+
+  FxLayer.prototype.render = function (t) {
+    const ctx = this.ctx;
+    ctx.clearRect(0, 0, this.w, this.h);
+
+    /* --- haze --- */
+    if (this.blobs.length) {
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < this.blobs.length; i++) {
+        const b = this.blobs[i];
+        const pulse = 0.82 + 0.18 * Math.sin(t * 0.00022 + b.ph);
+        ctx.globalAlpha = b.alpha * pulse;
+        ctx.drawImage(b.sprite, b.x - b.r / 2, b.y - b.r / 2, b.r, b.r);
+      }
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 1;
+    }
+
+    /* --- stars --- */
+    if (this.stars.length) {
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < this.stars.length; i++) {
+        const s = this.stars[i];
+        const tw = 0.55 + 0.45 * Math.sin(t * s.tw + s.ph);
+        ctx.globalAlpha = s.a * tw;
+        ctx.fillStyle = '#FFF6E0';
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, TAU);
+        ctx.fill();
+      }
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 1;
+    }
+
+    /* --- motes --- */
+    if (this.motes.length) {
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < this.motes.length; i++) {
+        const m = this.motes[i];
+        const tw = 0.55 + 0.45 * Math.sin(t * m.tw + m.ph);
+        const r = m.r * (0.85 + 0.3 * tw);
+        ctx.globalAlpha = m.a * tw * (this.opts.moteAlpha || 1);
+        ctx.drawImage(SPRITES.mote, m.x - r * 3, m.y - r * 3, r * 6, r * 6);
+      }
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 1;
+    }
+
+    /* --- petals --- */
+    for (let i = 0; i < this.petals.length; i++) {
+      const p = this.petals[i];
+      ctx.save();
+      ctx.globalAlpha = p.alpha * p.fade;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      const s = p.size;
+      ctx.drawImage(p.sprite, -s, -s, s * 2, s * 2);
+      ctx.restore();
+    }
+
+    /* --- sparks --- */
+    if (this.sparks.length) {
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < this.sparks.length; i++) {
+        const s = this.sparks[i];
+        const r = s.r * 4;
+        ctx.globalAlpha = clamp(s.a, 0, 1);
+        ctx.drawImage(s.sprite, s.x - r, s.y - r, r * 2, r * 2);
+      }
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 1;
+    }
+  };
+
+  /* ==============================================================
+     10. FLOWER
+     ============================================================== */
+  function Flower(def, delay, garden) {
+    this.garden = garden;
+    this.type = def.type;
+    this.spec = SPECS[def.type];
+    this.baseX = def.x;
+    this.baseY = def.y;
+    this.userScale = def.s;
+    this.hero = !!def.hero;
+    this.delay = delay;
+
+    this.x = def.x;
+    this.y = def.y;
+
+    this.swayPhase = rand(0, TAU);
+    this.swaySpeed = rand(0.00042, 0.00078);
+    this.swayAmp = this.spec.swayAmp * (garden.reduced ? 0.25 : 1);
+
+    this.hover = 0;
+    this.hovered = false;
+    this.lean = 0;
+    this.bloomed = false;
+    this.flashT = -1;
+    this.hitActive = false;
+
+    this.stemStart = delay - (this.hero ? 1750 : 1150);
+    this.stemDur = this.hero ? 1500 : 1050;
+    this.stemProgress = 0;
+    this.stemDone = false;
+
+    this.petals = [];
+    this.leaves = [];
+
+    this.build();
+  }
+
+  Flower.prototype.build = function () {
+    const spec = this.spec;
+
+    /* --- root group --- */
+    const g = el('g');
+    g.style.opacity = 0;
+    this.el = g;
+
+    /* --- soft halo behind the bloom --- */
+    this.halo = el('circle', {
+      r: spec.core ? spec.core.glowR : 40,
+      fill: 'url(#glowRose)',
+      opacity: 0
+    });
+    g.appendChild(this.halo);
+
+    /* --- green calyx at the base of the bloom --- */
+    if (spec.core || this.type !== 'wild') {
+      const calyx = el('ellipse', {
+        cx: 0, cy: -4, rx: 15, ry: 19,
+        fill: 'url(#leaf0)', opacity: 0.9
+      });
+      g.appendChild(calyx);
+    }
+
+    /* --- petal rings --- */
+    for (let li = 0; li < spec.layers.length; li++) {
+      const layer = spec.layers[li];
+      const lg = el('g');
+      const jl = layer.jl === undefined ? 0.14 : layer.jl;
+      const jw = layer.jw === undefined ? 0.14 : layer.jw;
+
+      for (let i = 0; i < layer.count; i++) {
+        const baseAngle =
+          (i / layer.count) * 360 +
+          (layer.rotOffset || 0) +
+          rand(-layer.aj, layer.aj) * 0.5;
+
+        const L = layer.len * (1 + rand(-jl, jl));
+        const W = layer.wid * (1 + rand(-jw, jw));
+
+        const p = el('path', {
+          d: petalPath(layer.shape, L, W),
+          fill: 'url(#' + layer.grad + ')',
+          opacity: 0
+        });
+        lg.appendChild(p);
+
+        this.petals.push({
+          el: p,
+          baseAngle: baseAngle,
+          closed: layer.closed,
+          delayFrac: layer.delay + rand(-0.035, 0.035),
+          offset: layer.off,
+          done: false,
+          hidden: true
+        });
+      }
+      g.appendChild(lg);
+    }
+
+    /* --- lily stamens --- */
+    if (spec.stamens) {
+      const st = el('g');
+      this.stamens = [];
+      for (let i = 0; i < spec.stamens; i++) {
+        const a = (i / spec.stamens) * 360 + rand(-10, 10);
+        const len = rand(34, 44);
+        const line = el('path', {
+          d: 'M0,0 Q' + rand(-6, 6) + ',' + (-len * 0.55) + ' ' + rand(-9, 9) + ',' + (-len),
+          fill: 'none',
+          stroke: '#E8DCBF',
+          'stroke-width': 1.1,
+          'stroke-linecap': 'round',
+          opacity: 0
+        });
+        const tip = el('ellipse', {
+          rx: 3.2, ry: 2.0,
+          fill: '#FFD99A', opacity: 0
+        });
+        const sg = el('g', { transform: 'rotate(' + a + ')' });
+        sg.appendChild(line);
+        tip.setAttribute('cx', 0);
+        tip.setAttribute('cy', -len);
+        sg.appendChild(tip);
+        st.appendChild(sg);
+        this.stamens.push({ g: sg, done: false });
+      }
+      g.appendChild(st);
+    }
+
+    /* --- core glow + core --- */
+    if (spec.core) {
+      this.coreGlow = el('circle', {
+        r: spec.core.glowR * 0.55,
+        fill: 'url(#glowGold)',
+        opacity: 0
+      });
+      g.appendChild(this.coreGlow);
+
+      this.core = el('circle', {
+        r: spec.core.r,
+        fill: 'url(#coreGrad)',
+        opacity: 0
+      });
+      g.appendChild(this.core);
+    }
+
+    /* --- bloom flash --- */
+    this.flash = el('circle', {
+      r: spec.core ? spec.core.glowR : 40,
+      fill: 'url(#glowGold)',
+      opacity: 0
+    });
+    g.appendChild(this.flash);
+
+    /* --- hit area --- */
+    this.hit = el('circle', {
+      r: spec.hitR * 1.02,
+      fill: 'rgba(0,0,0,0)',
+      'pointer-events': 'none'
+    });
+    g.appendChild(this.hit);
+
+    /* --- stem --- */
+    this.stemEl = el('path', {
+      fill: 'none',
+      stroke: 'url(#stemGrad)',
+      'stroke-width': (this.hero ? 8.5 : (this.userScale > 0.9 ? 6.5 : 5)),
+      'stroke-linecap': 'round'
+    });
+    this.stemLen = 1;
+
+    /* --- leaves --- */
+    this.leafGroup = el('g');
+    const leafCount = this.type === 'wild' ? 1 : (this.hero ? 3 : 2);
+    for (let i = 0; i < leafCount; i++) {
+      this.leaves.push(this.makeLeaf(i, leafCount));
+    }
+
+    /* --- interaction --- */
+    const self = this;
+    this.hit.addEventListener('pointerenter', function (e) {
+      if (!self.bloomed) return;
+      if (e.pointerType === 'touch') return;
+      self.setHover(true);
+    });
+    this.hit.addEventListener('pointerleave', function () {
+      self.setHover(false);
+    });
+    this.hit.addEventListener('pointerdown', function (e) {
+      if (!self.bloomed) return;
+      e.stopPropagation();
+      self.onClick();
+    });
+    this.hit.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  };
+
+  Flower.prototype.makeLeaf = function (index, total) {
+    const scaleRef = this.userScale;
+    const len = rand(34, 52) * scaleRef * (this.hero ? 1.25 : 1);
+    const t = 0.30 + (index / Math.max(1, total - 1)) * 0.38;
+    const side = (index % 2 === 0) ? -1 : 1;
+
+    const g = el('g');
+    g.style.opacity = 0;
+
+    const leafBody = el('path', {
+      d: petalPath('leaf', len, len * 0.33),
+      fill: 'url(#leaf1)'
+    });
+    const vein = el('path', {
+      d: 'M0,0 Q' + (len * 0.05).toFixed(1) + ',' + (-len * 0.46).toFixed(1) + ' 0,' + (-len * 0.88).toFixed(1),
+      fill: 'none',
+      stroke: '#A8CFB4',
+      'stroke-width': Math.max(0.7, len * 0.020),
+      'stroke-linecap': 'round',
+      opacity: 0.45
+    });
+    g.appendChild(leafBody);
+    g.appendChild(vein);
+
+    return {
+      el: g,
+      t: t,
+      len: len,
+      rot: side * rand(46, 72),
+      scale: 1,
+      start: 0,
+      dur: 780,
+      done: false,
+      hidden: true,
+      x: 0,
+      y: 0
+    };
+  };
+
+  Flower.prototype.setHover = function (on) {
+    if (this.hovered === on) return;
+    this.hovered = on;
+    if (on && this.garden.fg) {
+      const p = this.garden.sceneToScreen(this.x, this.y);
+      this.garden.fg.burst(p.x, p.y, 5, 0.6);
+    }
+  };
+
+  Flower.prototype.onClick = function () {
+    this.flashT = 0;
+    this.hover = 1;
+    const g = this.garden;
+
+    const p = g.sceneToScreen(this.x, this.y);
+
+    /* particle burst */
+    if (g.fg) {
+      g.fg.burst(p.x, p.y, 26, 1.35);
+      for (let i = 0; i < 5; i++) {
+        g.fg.spawnPetal(p.x + rand(-18, 18), p.y + rand(-14, 14), {
+          vx: rand(-0.09, 0.09),
+          vy: rand(-0.11, -0.02),
+          size: rand(6, 13) * (this.userScale * 1.3),
+          alpha: 0.85
+        });
+      }
+    }
+
+    audio.sparkle();
+
+    /* floating message */
+    const msgs = CONFIG.flowerMessages;
+    const now = performance.now();
+    if (now - g.lastMsgTime > 1500 && msgs.length) {
+      g.lastMsgTime = now;
+      const txt = msgs[randInt(0, msgs.length - 1)];
+      g.showMessage(txt, p.x, p.y);
+    }
+  };
+
+  Flower.prototype.update = function (dt, t) {
+    const spec = this.spec;
+    const g = this.el;
+
+    /* ---------- stem growth ---------- */
+    const sp = clamp((t - this.stemStart) / this.stemDur, 0, 1);
+    if (!this.stemDone) {
+      if (sp > 0) {
+        const e = easeOutCubic(sp);
+        this.stemProgress = e;
+        this.stemEl.style.strokeDashoffset = (this.stemLen * (1 - e)).toFixed(2);
+      }
+      if (sp >= 1) this.stemDone = true;
+    }
+
+    /* ---------- leaves ---------- */
+    for (let i = 0; i < this.leaves.length; i++) {
+      const lf = this.leaves[i];
+      if (lf.done) continue;
+      const lp = clamp((t - lf.start) / lf.dur, 0, 1);
+      if (lp <= 0) continue;
+      if (lf.hidden) { lf.el.style.opacity = '0'; lf.hidden = false; }
+      const e = easeOutBack(lp, 1.15);
+      lf.el.setAttribute('transform',
+        'translate(' + lf.x.toFixed(1) + ',' + lf.y.toFixed(1) + ') ' +
+        'rotate(' + (lf.rot * (0.35 + 0.65 * clamp(e, 0, 1.2))).toFixed(2) + ') ' +
+        'scale(' + (Math.max(0, e)).toFixed(3) + ')'
+      );
+      lf.el.style.opacity = String(clamp(lp * 2.6, 0, 1));
+      if (lp >= 1) {
+        lf.done = true;
+        lf.el.style.opacity = '1';
+        lf.el.setAttribute('transform',
+          'translate(' + lf.x.toFixed(1) + ',' + lf.y.toFixed(1) + ') ' +
+          'rotate(' + lf.rot.toFixed(2) + ') scale(1)'
+        );
+      }
+    }
+
+    /* ---------- bloom ---------- */
+    const local = t - this.delay;
+
+    if (local < 0) {
+      g.style.opacity = '0';
+      if (this.hitActive) { this.hit.setAttribute('pointer-events', 'none'); this.hitActive = false; }
+      return;
+    }
+
+    g.style.opacity = '1';
+
+    const dur = spec.duration;
+    const bp = clamp(local / dur, 0, 1);
+    let allDone = true;
+
+    for (let i = 0; i < this.petals.length; i++) {
+      const pt = this.petals[i];
+      if (pt.done) continue;
+
+      const pr = clamp((local / dur - pt.delayFrac) / 1.0, 0, 1);
+
+      if (pr <= 0) {
+        if (!pt.hidden) { pt.el.setAttribute('opacity', '0'); pt.hidden = true; }
+        allDone = false;
+        continue;
+      }
+
+      const e = easeOutBack(pr, 1.0);
+      const ang = pt.baseAngle * e;
+      const sc = pt.closed + (1 - pt.closed) * e;
+      const off = pt.offset * e;
+
+      pt.el.setAttribute('transform',
+        'rotate(' + ang.toFixed(2) + ') translate(0,' + (-off).toFixed(2) + ') scale(' + sc.toFixed(4) + ')'
+      );
+      pt.el.setAttribute('opacity', clamp(pr * 3, 0, 1).toFixed(2));
+
+      if (pr >= 1) {
+        pt.done = true;
+        pt.el.setAttribute('transform',
+          'rotate(' + pt.baseAngle.toFixed(2) + ') translate(0,' + (-pt.offset).toFixed(2) + ') scale(1)'
+        );
+        pt.el.setAttribute('opacity', '1');
+      } else {
+        allDone = false;
+      }
+    }
+
+    /* ---------- stamens ---------- */
+    if (this.stamens) {
+      for (let i = 0; i < this.stamens.length; i++) {
+        const s = this.stamens[i];
+        if (s.done) continue;
+        const p = clamp((local / dur - 0.42) / 0.58, 0, 1);
+        if (p <= 0) continue;
+        const e = easeOutCubic(p);
+        s.g.setAttribute('transform', 'rotate(' + (i / this.stamens.length * 360).toFixed(1) + ') scale(' + (0.25 + 0.75 * e).toFixed(3) + ')');
+        s.g.setAttribute('opacity', e.toFixed(2));
+        if (p >= 1) { s.done = true; s.g.setAttribute('opacity', '1'); }
+      }
+    }
+
+    /* ---------- core glow ---------- */
+    const glowP = clamp((local / dur - 0.35) / 0.65, 0, 1);
+    const breathe = 0.85 + 0.15 * Math.sin(t * 0.0011 + this.swayPhase);
+
+    if (this.coreGlow) {
+      let opacity = glowP * 0.62 * breathe * (this.hero ? 1.15 : 1);
+      this.coreGlow.setAttribute('opacity', clamp(opacity, 0, 1).toFixed(3));
+      this.coreGlow.setAttribute('r', (spec.core.glowR * (0.5 + 0.5 * glowP) * (1 + this.hover * 0.20)).toFixed(1));
+    }
+    if (this.core) {
+      this.core.setAttribute('opacity', glowP.toFixed(2));
+      this.core.setAttribute('r', (spec.core.r * (0.6 + 0.4 * glowP) * (1 + this.hover * 0.12)).toFixed(2));
+    }
+
+    /* halo */
+    this.halo.setAttribute('opacity', (glowP * 0.42 * breathe + this.hover * 0.28).toFixed(3));
+    this.halo.setAttribute('r', ((spec.core ? spec.core.glowR : 40) * 1.35 * (1 + this.hover * 0.18)).toFixed(1));
+
+    /* ---------- bloom completion ---------- */
+    if (!this.bloomed && allDone && bp > 0) {
+      this.bloomed = true;
+      this.flashT = 0;
+      this.hit.setAttribute('pointer-events', 'all');
+      this.hitActive = true;
+      this.onBloomComplete();
+    }
+
+    /* ---------- flash ---------- */
+    if (this.flashT >= 0) {
+      this.flashT += dt;
+      const fp = this.flashT / 900;
+      if (fp >= 1) {
+        this.flashT = -1;
+        this.flash.setAttribute('opacity', '0');
+      } else {
+        const r = (spec.core ? spec.core.glowR : 40) * (0.45 + 2.1 * easeOutCubic(fp));
+        this.flash.setAttribute('r', r.toFixed(1));
+        this.flash.setAttribute('opacity', ((1 - fp) * (1 - fp) * 0.85).toFixed(3));
+      }
+    }
+
+    /* ---------- hover easing ---------- */
+    const target = this.hovered ? 1 : 0;
+    this.hover += (target - this.hover) * Math.min(1, dt / 170);
+
+    /* lean gently toward the pointer */
+    let leanTarget = 0;
+    if (this.hovered && this.garden.pointerActive) {
+      leanTarget = clamp((this.garden.pointerScene.x - this.x) * 0.0075, -3.4, 3.4);
+    }
+    this.lean += (leanTarget - this.lean) * Math.min(1, dt / 260);
+
+    /* ---------- group transform (position + sway + lean) ---------- */
+    const sway = Math.sin(t * this.swaySpeed + this.swayPhase) * this.swayAmp;
+    const sc = this.userScale * (1 + this.hover * 0.028);
+
+    g.setAttribute('transform',
+      'translate(' + this.x.toFixed(2) + ',' + this.y.toFixed(2) + ') ' +
+      'rotate(' + (sway + this.lean).toFixed(3) + ') ' +
+      'scale(' + sc.toFixed(4) + ')'
+    );
+  };
+
+  Flower.prototype.onBloomComplete = function () {
+    const g = this.garden;
+    const p = g.sceneToScreen(this.x, this.y);
+
+    if (g.fg) {
+      g.fg.burst(p.x, p.y, this.hero ? 40 : 20, this.hero ? 1.7 : 1.1);
+      for (let i = 0; i < (this.hero ? 9 : 4); i++) {
+        g.fg.spawnPetal(p.x + rand(-14, 14), p.y + rand(-12, 12), {
+          vx: rand(-0.06, 0.06),
+          vy: rand(-0.09, -0.01),
+          size: rand(6, 14) * this.userScale * 1.2,
+          alpha: 0.8
+        });
+      }
+    }
+    if (g.back) {
+      g.back.burst(p.x, p.y, 10, 0.8);
+    }
+
+    if (this.hero) audio.bloom();
+    else if (Math.random() < 0.55) audio.tone(rand(600, 1000), 1.8, 0.04, 'sine');
+  };
+
+  /* ==============================================================
+     11. GARDEN — the whole scene
+     ============================================================== */
+  function Garden() {
+    this.svg = document.getElementById('garden');
+    this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    this.pointerActive = false;
+    this.pointerScene = { x: 600, y: 400 };
+    this.lastMsgTime = 0;
+
+    /* view state (recomputed on resize) */
+    this.view = { vbX: 0, vbY: 0, vbW: 1200, vbH: 800, scale: 1 };
+
+    /* ---------- build SVG layers ---------- */
+    this.defs = el('defs');
+    this.svg.appendChild(this.defs);
+    buildDefs(this.defs);
+
+    this.stemLayer = el('g');
+    this.leafLayer = el('g');
+    this.flowerLayer = el('g');
+    this.seedLayer = el('g');
+
+    this.svg.appendChild(this.stemLayer);
+    this.svg.appendChild(this.leafLayer);
+    this.svg.appendChild(this.flowerLayer);
+    this.svg.appendChild(this.seedLayer);
+
+    /* ---------- seed of light ---------- */
+    this.buildSeed();
+
+    /* ---------- flowers ---------- */
+    this.flowers = [];
+    const defs = FLOWER_DEFS;
+
+    for (let i = 0; i < defs.length; i++) {
+      const d = defs[i];
+      const delay = d.hero ? T.heroBloom : (T.garden + (i - 1) * 430);
+      const f = new Flower(d, delay, this);
+      this.flowers.push(f);
+    }
+
+    /* Append in reverse so the hero flower ends up on top. */
+    for (let i = this.flowers.length - 1; i >= 0; i--) {
+      const f = this.flowers[i];
+      this.stemLayer.appendChild(f.stemEl);
+      this.leafLayer.appendChild(f.leafGroup);
+      this.flowerLayer.appendChild(f.el);
+    }
+
+    /* ---------- effects layers ---------- */
+    const density = this.reduced ? 0.35 : CONFIG.density;
+
+    this.back = new FxLayer(document.getElementById('fxBack'), {
+      blobs: 4,
+      stars: Math.round(150 * density),
+      motes: Math.round(70 * density),
+      maxPetals: Math.round(34 * density),
+      petalRate: this.reduced ? 0 : 0.85 * density,
+      petalSpeed: 0.85,
+      petalScale: 0.85,
+      moteScale: 1.0,
+      moteSpeed: 1.0,
+      moteAlpha: 1.0
+    });
+
+    this.fg = new FxLayer(document.getElementById('fxFront'), {
+      blobs: 0,
+      stars: 0,
+      motes: Math.round(26 * density),
+      maxPetals: Math.round(14 * density),
+      petalRate: this.reduced ? 0 : 0.30 * density,
+      petalSpeed: 1.15,
+      petalScale: 1.25,
+      moteScale: 1.5,
+      moteSpeed: 1.35,
+      moteAlpha: 1.15
+    });
+
+    /* ---------- bind resize ---------- */
+    const self = this;
+    let resizeRaf = null;
+    window.addEventListener('resize', function () {
+      if (resizeRaf) cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(function () {
+        resizeRaf = null;
+        self.layout();
+      });
+    });
+    window.addEventListener('orientationchange', function () {
+      setTimeout(function () { self.layout(); }, 220);
+    });
+
+    /* ---------- pointer tracking ---------- */
+    const stage = document.getElementById('stage');
+    stage.addEventListener('pointermove', function (e) {
+      self.pointerActive = true;
+      const v = self.view;
+      self.pointerScene.x = v.vbX + e.clientX / v.scale;
+      self.pointerScene.y = v.vbY + e.clientY / v.scale;
+
+      /* occasional magical dust near the cursor */
+      if (!self.reduced && Math.random() < 0.06 && self.fg) {
+        self.fg.burst(e.clientX, e.clientY, 1, 0.35);
+      }
+    });
+    stage.addEventListener('pointerleave', function () {
+      self.pointerActive = false;
+    });
+
+    /* empty-garden tap */
+    stage.addEventListener('pointerdown', function (e) {
+      if (e.target.closest && e.target.closest('.ctrl')) return;
+      if (e.target.classList && e.target.classList.contains('ctrl')) return;
+      const p = { x: e.clientX, y: e.clientY };
+      if (self.fg) {
+        self.fg.burst(p.x, p.y, 20, 1.0);
+        for (let i = 0; i < 3; i++) {
+          self.fg.spawnPetal(p.x + rand(-16, 16), p.y + rand(-16, 16), {
+            vx: rand(-0.07, 0.07),
+            vy: rand(-0.10, -0.01),
+            size: rand(6, 12),
+            alpha: 0.75
+          });
+        }
+      }
+      if (self.back) self.back.burst(p.x, p.y, 8, 0.55);
+      audio.tone(rand(520, 880), 1.2, 0.03, 'sine');
+    });
+
+    /* text elements */
+    this.msgEl = document.getElementById('flowerMsg');
+    this.msgTimer = null;
+
+    this.layout();
+  }
+
+  /* ---------- the awakening seed of light ---------- */
+  Garden.prototype.buildSeed = function () {
+    const g = el('g');
+    g.style.opacity = '0';
+    g.setAttribute('transform', 'translate(600,430)');
+
+    const outer = el('circle', { r: 130, fill: 'url(#seedGlow)', opacity: 0.7 });
+    const mid = el('circle', { r: 40, fill: 'url(#seedGlow)', opacity: 0.9 });
+    const core = el('circle', { r: 4.5, fill: '#FFFFFF', opacity: 1 });
+
+    g.appendChild(outer);
+    g.appendChild(mid);
+    g.appendChild(core);
+
+    this.seedEl = g;
+    this.seedOuter = outer;
+    this.seedMid = mid;
+    this.seedCore = core;
+    this.seedLayer.appendChild(g);
+  };
+
+  Garden.prototype.updateSeed = function (t) {
+    const g = this.seedEl;
+    const p = t - T.seedIn;
+
+    if (p < 0) {
+      g.style.opacity = '0';
+      return;
+    }
+
+    const rise = clamp(p / 720, 0, 1);
+    const fallP = clamp((t - T.seedFall) / 950, 0, 1);
+
+    const y = 430 + easeInCubic(fallP) * 440;
+    const fade = fallP > 0.55 ? 1 - (fallP - 0.55) / 0.45 : 1;
+
+    g.setAttribute('transform', 'translate(600,' + y.toFixed(1) + ')');
+    g.style.opacity = String(clamp(rise * fade, 0, 1));
+
+    const pulse = 0.86 + 0.14 * Math.sin(t * 0.0042);
+    const s = (0.35 + 0.65 * easeOutCubic(rise)) * pulse;
+
+    this.seedOuter.setAttribute('r', (150 * s).toFixed(1));
+    this.seedOuter.setAttribute('opacity', (0.62 * s).toFixed(3));
+    this.seedMid.setAttribute('r', (44 * s).toFixed(1));
+    this.seedMid.setAttribute('opacity', (0.9 * s).toFixed(3));
+    this.seedCore.setAttribute('r', (4.5 * (0.5 + 0.5 * s)).toFixed(2));
+  };
+
+  /* ---------- layout / responsive composition ---------- */
+  Garden.prototype.layout = function () {
+    const w = Math.max(1, window.innerWidth);
+    const h = Math.max(1, window.innerHeight);
+    const aspect = w / h;
+
+    /* Horizontal compression for narrow screens so the bouquet
+       never gets cropped into unreadability. */
+    const tx = clamp((aspect - 0.45) / (1.15 - 0.45), 0, 1);
+    const sx = 0.63 + 0.37 * tx;
+
+    const coreW = 780 * sx;
+    const coreH = 700;
+    const cx = 600;
+    const cy = 372;
+
+    let vbW, vbH;
+    if (aspect > coreW / coreH) {
+      vbH = coreH;
+      vbW = coreH * aspect;
+    } else {
+      vbW = coreW;
+      vbH = coreW / aspect;
+    }
+
+    /* Cap the vertical field so the bouquet never becomes tiny. */
+    const maxH = coreH * 1.95;
+    if (vbH > maxH) {
+      vbH = maxH;
+      vbW = vbH * aspect;
+    }
+    /* Never crop more than a small margin horizontally. */
+    const minW = 420;
+    if (vbW < minW) {
+      vbW = minW;
+      vbH = vbW / aspect;
+    }
+
+    const vbX = cx - vbW / 2;
+    const vbY = cy - vbH / 2;
+
+    this.svg.setAttribute('viewBox', vbX.toFixed(1) + ' ' + vbY.toFixed(1) + ' ' + vbW.toFixed(1) + ' ' + vbH.toFixed(1));
+    this.view = { vbX: vbX, vbY: vbY, vbW: vbW, vbH: vbH, scale: w / vbW };
+
+    /* --- reposition flowers + rebuild their stems and leaves --- */
+    for (let i = 0; i < this.flowers.length; i++) {
+      const f = this.flowers[i];
+
+      f.x = 600 + (f.baseX - 600) * sx;
+      f.y = f.baseY;
+
+      const baseX = 600 + (f.x - 600) * 0.20;
+      const baseY = 920;
+
+      const pts = [
+        { x: baseX, y: baseY },
+        { x: baseX + (f.x - baseX) * 0.06, y: baseY - (baseY - f.y) * 0.55 },
+        { x: f.x - (f.x - baseX) * 0.10, y: f.y + (baseY - f.y) * 0.42 },
+        { x: f.x, y: f.y }
+      ];
+
+      const d = 'M' + pts[0].x.toFixed(1) + ',' + pts[0].y.toFixed(1) +
+        ' C' + pts[1].x.toFixed(1) + ',' + pts[1].y.toFixed(1) +
+        ' ' + pts[2].x.toFixed(1) + ',' + pts[2].y.toFixed(1) +
+        ' ' + pts[3].x.toFixed(1) + ',' + pts[3].y.toFixed(1);
+
+      f.stemEl.setAttribute('d', d);
+
+      let len = 1;
+      try { len = f.stemEl.getTotalLength(); } catch (e) { len = 1; }
+      if (!isFinite(len) || len <= 0) len = 1;
+      f.stemLen = len;
+      f.stemEl.style.strokeDasharray = len.toFixed(2);
+      f.stemEl.style.strokeDashoffset = (len * (1 - f.stemProgress)).toFixed(2);
+
+      /* leaves ride along the stem */
+      for (let li = 0; li < f.leaves.length; li++) {
+        const lf = f.leaves[li];
+        const p = bezPoint(pts, lf.t);
+        lf.x = p.x + (lf.rot < 0 ? -3 : 3);
+        lf.y = p.y;
+        lf.start = f.stemStart + f.stemDur * (0.32 + li * 0.20);
+
+        if (!lf.done) {
+          lf.el.setAttribute('transform',
+            'translate(' + lf.x.toFixed(1) + ',' + lf.y.toFixed(1) + ') rotate(' + lf.rot.toFixed(2) + ') scale(0)'
+          );
+        } else {
+          lf.el.setAttribute('transform',
+            'translate(' + lf.x.toFixed(1) + ',' + lf.y.toFixed(1) + ') rotate(' + lf.rot.toFixed(2) + ') scale(1)'
+          );
+        }
+      }
+    }
+
+    /* --- canvases --- */
+    if (this.back) this.back.resize();
+    if (this.fg) this.fg.resize();
+  };
+
+  /* ---------- coordinate helper ---------- */
+  Garden.prototype.sceneToScreen = function (x, y) {
+    const v = this.view;
+    return { x: (x - v.vbX) * v.scale, y: (y - v.vbY) * v.scale };
+  };
+
+  /* ---------- floating message ---------- */
+  Garden.prototype.showMessage = function (text, sx, sy) {
+    const el = this.msgEl;
+    if (!el) return;
+
+    /* keep the bubble inside the viewport */
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const px = clamp(sx, 90, w - 90);
+    let py = sy - 44;
+    if (py < 70) py = sy + 58;
+    py = clamp(py, 54, h - 54);
+
+    el.textContent = text;
+    el.style.left = px + 'px';
+    el.style.top = py + 'px';
+    el.classList.add('show');
+
+    if (this.msgTimer) clearTimeout(this.msgTimer);
+    const self = this;
+    this.msgTimer = setTimeout(function () {
+      el.classList.remove('show');
+    }, 2600);
+  };
+
+  /* ---------- per-frame update ---------- */
+  Garden.prototype.update = function (dt, t) {
+    this.updateSeed(t);
+
+    for (let i = 0; i < this.flowers.length; i++) {
+      this.flowers[i].update(dt, t);
+    }
+
+    if (this.back) this.back.update(dt, t);
+    if (this.fg) this.fg.update(dt, t);
+  };
+
+  Garden.prototype.render = function (t) {
+    if (this.back) this.back.render(t);
+    if (this.fg) this.fg.render(t);
+  };
+
+  /* ==============================================================
+     12. APPLICATION
+     ============================================================== */
+  const App = {
+    garden: null,
+    sceneTime: 0,
+    last: 0,
+    paused: false,
+    speed: 1,
+    raf: null,
+    revealed: false,
+    messageShown: false,
+    started: false
+  };
+
+  /* ---------- text reveal helpers ---------- */
+  const titleEl = document.getElementById('title');
+  const subtitleEl = document.getElementById('subtitle');
+  const messageWrap = document.getElementById('messageWrap');
+  const messageEl = document.getElementById('message');
+  const messageNameEl = document.getElementById('messageName');
+  const vignette = document.getElementById('vignette');
+
+  function applyConfig() {
+    titleEl.textContent = CONFIG.title;
+    subtitleEl.textContent = CONFIG.subtitle;
+    messageEl.textContent = CONFIG.message;
+    if (CONFIG.recipientName) {
+      messageNameEl.textContent = 'For ' + CONFIG.recipientName;
+      messageNameEl.classList.add('show');
+    }
+    document.title = CONFIG.title + ' — ' + CONFIG.subtitle;
+  }
+
+  /* ---------- timeline reactions ---------- */
+  function checkTimeline(t) {
+    if (t >= T.titleIn && !titleEl.classList.contains('in')) {
+      titleEl.classList.add('in');
+    }
+    if (t >= T.subtitleIn && !subtitleEl.classList.contains('in')) {
+      subtitleEl.classList.add('in');
+    }
+    if (t >= T.messageIn && !App.messageShown) {
+      App.messageShown = true;
+      messageWrap.classList.add('in');
+    }
+    if (t >= T.reveal && !App.revealed) {
+      App.revealed = true;
+      vignette.classList.add('in');
+      /* a final gathering of luminous particles around the bouquet */
+      if (App.garden && App.garden.fg) {
+        const g = App.garden;
+        for (let i = 0; i < 3; i++) {
+          setTimeout(function () {
+            const px = window.innerWidth * rand(0.32, 0.68);
+            const py = window.innerHeight * rand(0.34, 0.62);
+            g.fg.burst(px, py, 16, 1.2);
+          }, i * 420);
+        }
+      }
+    }
+  }
+
+  /* ---------- main loop ---------- */
+  function frame(now) {
+    App.raf = requestAnimationFrame(frame);
+
+    if (!App.last) App.last = now;
+    let raw = now - App.last;
+    App.last = now;
+    if (raw > 64) raw = 64;
+    if (raw < 0) raw = 0;
+
+    let dt = App.paused ? 0 : raw * App.speed;
+    App.sceneTime += dt;
+
+    const t = App.sceneTime;
+
+    if (App.garden) {
+      App.garden.update(dt, t);
+      App.garden.render(t);
+    }
+
+    checkTimeline(t);
+  }
+
+  /* ---------- pause ---------- */
+  function setPaused(p) {
+    App.paused = p;
+    const btn = document.getElementById('btnPause');
+    btn.setAttribute('aria-pressed', p ? 'true' : 'false');
+    btn.setAttribute('aria-label', p ? 'Resume animation' : 'Pause animation');
+    btn.querySelector('.ico-pause-a').style.display = p ? 'none' : '';
+    btn.querySelector('.ico-pause-b').style.display = p ? 'none' : '';
+    btn.querySelector('.ico-play').style.display = p ? '' : 'none';
+  }
+
+  /* ---------- replay ---------- */
+  function replay() {
+    /* Remove all flowers and rebuild from scratch — cleanest reset. */
+    const g = App.garden;
+    if (!g) return;
+
+    g.stemLayer.innerHTML = '';
+    g.leafLayer.innerHTML = '';
+    g.flowerLayer.innerHTML = '';
+    g.seedLayer.innerHTML = '';
+
+    /* reset fx */
+    if (g.back) { g.back.petals.length = 0; g.back.sparks.length = 0; }
+    if (g.fg) { g.fg.petals.length = 0; g.fg.sparks.length = 0; }
+
+    /* rebuild seed */
+    g.buildSeed();
+
+    /* rebuild flowers */
+    g.flowers = [];
+    const defs = FLOWER_DEFS;
+    for (let i = 0; i < defs.length; i++) {
+      const d = defs[i];
+      const delay = d.hero ? T.heroBloom : (T.garden + (i - 1) * 430);
+      g.flowers.push(new Flower(d, delay, g));
+    }
+    for (let i = g.flowers.length - 1; i >= 0; i--) {
+      const f = g.flowers[i];
+      g.stemLayer.appendChild(f.stemEl);
+      g.leafLayer.appendChild(f.leafGroup);
+      g.flowerLayer.appendChild(f.el);
+    }
+
+    /* reset text */
+    titleEl.classList.remove('in');
+    subtitleEl.classList.remove('in');
+    messageWrap.classList.remove('in');
+    vignette.classList.remove('in');
+    App.revealed = false;
+    App.messageShown = false;
+    App.garden.msgEl.classList.remove('show');
+
+    /* relayout (regenerates stems + leaf anchors) */
+    g.layout();
+
+    /* rewind time */
+    App.sceneTime = g.reduced ? 11000 : 0;
+    App.last = 0;
+    setPaused(false);
+  }
+
+  /* ---------- boot ---------- */
+  function boot() {
+    applyConfig();
+
+    App.garden = new Garden();
+    App.speed = CONFIG.speed;
+
+    /* Respect reduced motion: skip the intro, calm everything down. */
+    if (App.garden.reduced) {
+      App.sceneTime = 11000;
+      App.garden.back.opts.petalRate = 0;
+      App.garden.fg.opts.petalRate = 0;
+    }
+
+    App.raf = requestAnimationFrame(frame);
+
+    /* --- controls --- */
+    const btnSound = document.getElementById('btnSound');
+    const btnPause = document.getElementById('btnPause');
+    const btnReplay = document.getElementById('btnReplay');
+
+    btnSound.addEventListener('click', function () {
+      const on = btnSound.getAttribute('aria-pressed') !== 'true';
+      const ok = audio.setEnabled(on);
+      if (!ok) return;
+      btnSound.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btnSound.classList.toggle('on', on);
+      btnSound.setAttribute('aria-label', on ? 'Mute ambient sound' : 'Enable ambient sound');
+      if (on) audio.tone(660, 1.4, 0.05, 'sine');
+    });
+
+    btnPause.addEventListener('click', function () {
+      setPaused(!App.paused);
+    });
+
+    btnReplay.addEventListener('click', function () {
+      replay();
+    });
+
+    /* keyboard shortcuts */
+    document.addEventListener('keydown', function (e) {
+      if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        setPaused(!App.paused);
+      } else if (e.key === 'r' || e.key === 'R') {
+        replay();
+      } else if (e.key === 'm' || e.key === 'M') {
+        btnSound.click();
+      }
+    });
+
+    /* pause decorative work when the tab is hidden */
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) {
+        App.last = 0;
+      } else {
+        App.last = 0;
+      }
+    });
+  }
+
+  /* ---------- safe start ---------- */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+
+  /* ---------- error resilience ---------- */
+  window.addEventListener('error', function (e) {
+    /* Never let an unexpected error leave the visitor with a black screen. */
+    if (e && e.message) {
+      /* Fail silently — the composition stays as it is. */
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
